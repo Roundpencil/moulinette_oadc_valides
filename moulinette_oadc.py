@@ -1,11 +1,45 @@
 import pandas as pd
 from datetime import *
 
-def respecte_le_format(valeur):
-    # Ta fonction existante (exemple simple ici)
+import re
+import unicodedata
+
+def respecte_le_format(valeur)->str:
+    # 1. Vérifier valeur nulle
     if pd.isna(valeur):
-        return False
-    return str(valeur).isalnum()
+        return ", La ligne est vide"
+
+    # Convertir en string si nécessaire
+    valeur = str(valeur)
+
+    # 2. Interdire espaces ou caractères invisibles en début/fin
+    # strip() enlève espaces standards, on compare à l'original
+    if valeur != valeur.strip():
+        return ", Présence d'espaces au début ou à la fin"
+
+    # 3. Interdire caractères non ASCII (accentués, barrés, etc.)
+    try:
+        valeur.encode('ascii')
+    except UnicodeEncodeError:
+        return ", Présence de caractères accentués, invisibles ou barrés"
+
+    # 4. Interdire caractères invisibles internes (catégories Unicode "C")
+    for char in valeur:
+        if unicodedata.category(char).startswith("C"):
+            return ", Présence de caractères invisibles ou peu visibles"
+
+    # 5. Interdire caractères spéciaux consécutifs
+    # On considère spécial = non alphanumérique
+    if re.search(r'[^a-zA-Z0-9]{2,}', valeur):
+        return ", Présence de deux caractères spéciaux consécutifs"
+
+    return ""
+
+# def respecte_le_format(valeur):
+#     # Ta fonction existante (exemple simple ici)
+#     if pd.isna(valeur):
+#         return False
+#     return str(valeur).isalnum()
 
 
 def controler_donnees(chemin_ref, chemin_test, colonne_nom_ref, colonne_nom_test, dossier_sortie=r'.', verbose=True):
@@ -31,19 +65,21 @@ def controler_donnees(chemin_ref, chemin_test, colonne_nom_ref, colonne_nom_test
             raison += ", Valeur absente du fichier de référence"
 
         # Test 2 : Respect du format
-        elif not respecte_le_format(valeur):
-            raison += ", Format invalide (critères fonction respecte_le_format)"
+        raison += respecte_le_format(valeur)
+        # elif not respecte_le_format(valeur):
+        #     raison += ", Format invalide (critères fonction respecte_le_format)"
 
         if verbose:
             print(f"\tRaison = {raison}")
 
         # Dispatching
+        raison = raison[2:]
         if raison == "":
             valides.append(row)
         else:
             # On ajoute la raison de l'invalidité
             ligne_err = row.to_dict()
-            ligne_err['raison_invalidite'] = raison[2:]
+            ligne_err['raison_invalidite'] = raison
             invalides.append(ligne_err)
 
     fin = datetime.now()

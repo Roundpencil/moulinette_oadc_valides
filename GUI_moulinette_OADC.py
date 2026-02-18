@@ -53,11 +53,12 @@ def valider():
     print(f"dossier de sortie : {f_out}")
 
     if f_in and f_ref and f_out:
-        messagebox.showinfo("Succès", f"Traitement lancé !\nSortie : {f_out}")
+        # messagebox.showinfo("Succès", f"Traitement lancé !\nSortie : {f_out}")
+        pass
     else:
         messagebox.showwarning("Attention", "Veuillez remplir tous les champs.")
 
-    config = {
+    ma_config = {
         "chemin_fichier_de_reference": f_ref,
         "chemin_de_sortie": f_out,
         "nom_de_la_colonne_entree": nom_colonne_ref,
@@ -66,7 +67,7 @@ def valider():
 
     # Écriture dans un fichier JSON
     with open("config.json", "w", encoding="utf-8") as fichier_json:
-        json.dump(config, fichier_json, indent=4, ensure_ascii=False)
+        json.dump(ma_config, fichier_json, indent=4, ensure_ascii=False)
 
     moulinette_oadc.controler_donnees(chemin_ref=f_ref,
                                       chemin_test=f_in,
@@ -80,8 +81,8 @@ def valider():
 def charger_config(chemin="config.json"):
     if os.path.exists(chemin):
         with open(chemin, "r", encoding="utf-8") as fichier_json:
-            config = json.load(fichier_json)
-        return config
+            ma_config = json.load(fichier_json)
+        return ma_config
     else:
         print("Le fichier config.json n'existe pas.")
         return dict()
@@ -89,35 +90,112 @@ def charger_config(chemin="config.json"):
 # Configuration de la fenêtre principale
 root = tk.Tk()
 root.title("Moulinette af2m OADC")
-root.geometry("500x250")
+root.geometry("900x235")
 
 config = charger_config()
 print(f"Config = {config}")
 
-# Fichier d'entrée
-tk.Label(root, text="Fichier d'entrée :").pack(pady=(10, 0))
-entry_input = tk.Entry(root, width=50)
-entry_input.pack()
-tk.Button(root, text="Parcourir...", command=selectionner_entree).pack()
+# Fonction utilitaire pour créer une ligne complète
+def creer_ligne(parent, texte_label, commande_bouton=None, valeur_defaut=""):
+    frame = tk.Frame(parent)
+    frame.pack(fill="x", padx=10, pady=5)
 
-# Fichier de référence
-tk.Label(root, text="Fichier de référence :").pack(pady=(10, 0))
-entry_ref = tk.Entry(root, width=50)
-entry_ref.insert(0, config.get("chemin_fichier_de_reference", ""))
-entry_ref.pack()
-tk.Button(root, text="Parcourir...", command=selectionner_reference).pack()
+    label = tk.Label(frame, text=texte_label, width=40, anchor="w")
+    label.grid(row=0, column=0, sticky="w")
 
-# Dossier de sortie
-tk.Label(root, text="Dossier de sortie :").pack(pady=(10, 0))
-entry_output = tk.Entry(root, width=50)
-entry_output.insert(0, config.get("chemin_de_sortie", ""))
-entry_output.pack()
-tk.Button(root, text="Parcourir...", command=selectionner_sortie).pack()
+    entry = tk.Entry(frame)
+    entry.insert(0, valeur_defaut)
+    entry.grid(row=0, column=1, sticky="ew", padx=5)
 
-# Bouton de validation
-tk.Button(root, text="Lancer", bg="green", fg="white", command=valider).pack(pady=20)
+    if commande_bouton:
+        bouton = tk.Button(frame, text="Parcourir...", command=commande_bouton)
+        bouton.grid(row=0, column=2)
+
+    frame.columnconfigure(1, weight=1)
+
+    return entry
+
+
+# --- Fichier d'entrée ---
+entry_input = creer_ligne(
+    root,
+    "Fichier d'entrée :",
+    commande_bouton=selectionner_entree
+)
+
+# --- Fichier de référence ---
+entry_ref = creer_ligne(
+    root,
+    "Fichier de référence :",
+    commande_bouton=selectionner_reference,
+    valeur_defaut=config.get("chemin_fichier_de_reference", "")
+)
+
+# --- Dossier de sortie ---
+entry_output = creer_ligne(
+    root,
+    "Dossier de sortie :",
+    commande_bouton=selectionner_sortie,
+    valeur_defaut=config.get("chemin_de_sortie", "")
+)
+
+# --- Nouveau champ : colonne OADC fichier référence ---
+entry_col_ref = creer_ligne(
+    root,
+    "Nom de la colonne contenant les OADC (fichier de référence) :",
+    valeur_defaut=config.get("nom_de_la_colonne_de_reference", "")
+)
+
+# --- Nouveau champ : colonne OADC fichier entrée ---
+entry_col_input = creer_ligne(
+    root,
+    "Nom de la colonne contenant les OADC (fichier d'entrée) :",
+    valeur_defaut=config.get("nom_de_la_colonne_entree", "")
+)
+
+# --- Bouton Lancer ---
+tk.Button(
+    root,
+    text="Lancer",
+    bg="green",
+    fg="white",
+    command=valider
+).pack(pady=20)
 
 root.mainloop()
+
+# # Configuration de la fenêtre principale
+# root = tk.Tk()
+# root.title("Moulinette af2m OADC")
+# root.geometry("500x250")
+#
+# config = charger_config()
+# print(f"Config = {config}")
+#
+# # Fichier d'entrée
+# tk.Label(root, text="Fichier d'entrée :").pack(pady=(10, 0))
+# entry_input = tk.Entry(root, width=50)
+# entry_input.pack()
+# tk.Button(root, text="Parcourir...", command=selectionner_entree).pack()
+#
+# # Fichier de référence
+# tk.Label(root, text="Fichier de référence :").pack(pady=(10, 0))
+# entry_ref = tk.Entry(root, width=50)
+# entry_ref.insert(0, config.get("chemin_fichier_de_reference", ""))
+# entry_ref.pack()
+# tk.Button(root, text="Parcourir...", command=selectionner_reference).pack()
+#
+# # Dossier de sortie
+# tk.Label(root, text="Dossier de sortie :").pack(pady=(10, 0))
+# entry_output = tk.Entry(root, width=50)
+# entry_output.insert(0, config.get("chemin_de_sortie", ""))
+# entry_output.pack()
+# tk.Button(root, text="Parcourir...", command=selectionner_sortie).pack()
+#
+# # Bouton de validation
+# tk.Button(root, text="Lancer", bg="green", fg="white", command=valider).pack(pady=20)
+#
+# root.mainloop()
 
 # # Test de la fonction
 # fichier = selectionner_fichier()
