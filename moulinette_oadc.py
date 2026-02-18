@@ -14,6 +14,9 @@ def respecte_le_format(valeur)->str:
     # Convertir en string si nécessaire
     valeur = str(valeur)
 
+    if len(valeur) > 11:
+        return ", plus de 11 caractères"
+
     # 2. Interdire espaces ou caractères invisibles en début/fin
     # strip() enlève espaces standards, on compare à l'original
     if valeur != valeur.strip():
