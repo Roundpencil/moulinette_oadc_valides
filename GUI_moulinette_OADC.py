@@ -9,8 +9,8 @@ import moulinette_oadc
 def selectionner_entree():
     # Définition des extensions autorisées
     types_fichiers = [
-        ("Fichiers de données", "*.csv *.xlsx"),
-        ("Fichiers CSV", "*.csv"),
+        # ("Fichiers de données", "*.csv *.xlsx"),
+        # ("Fichiers CSV", "*.csv"),
         ("Fichiers Excel", "*.xlsx")
     ]
 
@@ -24,8 +24,8 @@ def selectionner_entree():
 
 def selectionner_reference():
     types_fichiers = [
-        ("Fichiers de données", "*.csv *.xlsx"),
-        ("Fichiers CSV", "*.csv"),
+        # ("Fichiers de données", "*.csv *.xlsx"),
+        # ("Fichiers CSV", "*.csv"),
         ("Fichiers Excel", "*.xlsx")
     ]
 
@@ -47,8 +47,8 @@ def valider():
     f_in = entry_input.get()
     f_ref = entry_ref.get()
     f_out = entry_output.get()
-    nom_colonne_ref = "OADC"
-    nom_colonne_test = "OADC"
+    nom_colonne_ref = entry_col_ref.get()
+    nom_colonne_test = entry_col_input.get()
 
     print(f"dossier de sortie : {f_out}")
 
@@ -61,7 +61,7 @@ def valider():
     ma_config = {
         "chemin_fichier_de_reference": f_ref,
         "chemin_de_sortie": f_out,
-        "nom_de_la_colonne_entree": nom_colonne_ref,
+        "nom_de_la_colonne_entree": nom_colonne_test,
         "nom_de_la_colonne_de_reference": nom_colonne_ref,
     }
 
@@ -69,14 +69,17 @@ def valider():
     with open("config.json", "w", encoding="utf-8") as fichier_json:
         json.dump(ma_config, fichier_json, indent=4, ensure_ascii=False)
 
-    moulinette_oadc.controler_donnees(chemin_ref=f_ref,
-                                      chemin_test=f_in,
-                                      colonne_nom_ref=nom_colonne_ref,
-                                      colonne_nom_test=nom_colonne_test,
-                                      dossier_sortie=f_out)
+    retour_controle = moulinette_oadc.controler_donnees(chemin_ref=f_ref,
+                                                        chemin_test=f_in,
+                                                        colonne_nom_ref=nom_colonne_ref,
+                                                        colonne_nom_test=nom_colonne_test,
+                                                        dossier_sortie=f_out)
 
+    if retour_controle == "":
+        messagebox.showinfo("Succès", f"Fin du traitement !\nSortie : {f_out}")
+    else:
+        messagebox.showinfo("Echec", f"Un problème est survenu : \n {retour_controle}")
 
-    messagebox.showinfo("Succès", f"Fin du traitement !\nSortie : {f_out}")
 
 def charger_config(chemin="config.json"):
     if os.path.exists(chemin):

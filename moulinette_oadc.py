@@ -1,3 +1,5 @@
+from os.path import sep
+
 import pandas as pd
 from datetime import *
 
@@ -45,6 +47,13 @@ def respecte_le_format(valeur)->str:
 def controler_donnees(chemin_ref, chemin_test, colonne_nom_ref, colonne_nom_test, dossier_sortie=r'.', verbose=True):
     # 1. Chargement des données
     df_ref = pd.read_excel(chemin_ref)
+    # if chemin_ref.endswith(".csv"):
+    #     df_ref = pd.read_csv(chemin_ref, sep=None, engine='python')
+    # elif chemin_ref.endswith(".xlsx") or chemin_ref.endswith(".xls"):
+    #     df_ref = pd.read_excel(chemin_ref)
+    # else:
+    #     return "Format du fichier de référence non reconnu"
+
     df_test = pd.read_excel(chemin_test)
 
     # On transforme la colonne de référence en 'set' pour une recherche ultra-rapide
@@ -92,6 +101,7 @@ def controler_donnees(chemin_ref, chemin_test, colonne_nom_ref, colonne_nom_test
                                      index=False)
 
     print(f"Traitement terminé. {len(valides)} valides, {len(invalides)} invalides.")
+    return ""
 
 # Utilisation
 # controler_donnees("reference.xlsx", "a_controler.xlsx", "NomDeLaColonne")
