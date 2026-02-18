@@ -97,13 +97,13 @@ print(f"Config = {config}")
 # Fichier d'entrée
 tk.Label(root, text="Fichier d'entrée :").pack(pady=(10, 0))
 entry_input = tk.Entry(root, width=50)
-entry_input.insert(0, config.get("chemin_fichier_de_reference", ""))
 entry_input.pack()
 tk.Button(root, text="Parcourir...", command=selectionner_entree).pack()
 
 # Fichier de référence
 tk.Label(root, text="Fichier de référence :").pack(pady=(10, 0))
 entry_ref = tk.Entry(root, width=50)
+entry_ref.insert(0, config.get("chemin_fichier_de_reference", ""))
 entry_ref.pack()
 tk.Button(root, text="Parcourir...", command=selectionner_reference).pack()
 
