@@ -24,7 +24,8 @@ def respecte_le_format(valeur)->str:
 
     # 3. Interdire caractères non ASCII (accentués, barrés, etc.)
     try:
-        valeur.encode('ascii')
+        valeur.replace("§", "").encode('ascii')
+        print(valeur)
     except UnicodeEncodeError:
         return ", Présence de caractères accentués, invisibles ou barrés"
 
