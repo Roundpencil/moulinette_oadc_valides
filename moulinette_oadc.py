@@ -7,6 +7,7 @@ import re
 import unicodedata
 
 def respecte_le_format(valeur)->str:
+    valeur = valeur.lower()
     # 1. Vérifier valeur nulle
     if pd.isna(valeur):
         return ", La ligne est vide"
@@ -61,7 +62,8 @@ def controler_donnees(chemin_ref, chemin_test, colonne_nom_ref, colonne_nom_test
     df_test = pd.read_excel(chemin_test)
 
     # On transforme la colonne de référence en 'set' pour une recherche ultra-rapide
-    valeurs_valides_ref = set(df_ref[colonne_nom_ref].astype(str))
+    # valeurs_valides_ref = set(df_ref[colonne_nom_ref].astype(str))
+    valeurs_valides_ref = set(df_ref[colonne_nom_ref].astype(str).str.lower())
 
     valides = []
     invalides = []
@@ -74,7 +76,7 @@ def controler_donnees(chemin_ref, chemin_test, colonne_nom_ref, colonne_nom_test
             print(f"Valeur testée : {valeur}")
 
         # Test 1 : Présence dans le fichier de référence
-        if valeur not in valeurs_valides_ref:
+        if valeur.lower() not in valeurs_valides_ref:
             raison += ", Valeur absente du fichier de référence"
 
         # Test 2 : Respect du format
